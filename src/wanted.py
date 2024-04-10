@@ -39,7 +39,8 @@ class WantedCrawler:
 
         idx = 0 ## For Debug mode
         last_height = browser.execute_script("return document.body.scrollHeight")
-        while True:
+        while idx < 100:
+            print(f"Page : {idx}")
             if self.debug and idx > 6:
                 break
             browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
@@ -65,7 +66,7 @@ class WantedCrawler:
         blocks = container.find_elements(By.CLASS_NAME, 'JobCard_JobCard__oZL4d')
 
         total_data = []
-        for i, block in tqdm(enumerate(blocks), total=len(blocks), leave=False):
+        for i, block in tqdm(enumerate(blocks), total=len(blocks), leave=True):
             try:
                 card = block.find_element(By.TAG_NAME, 'a')
                 company_name = card.get_attribute('data-company-name')

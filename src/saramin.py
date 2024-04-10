@@ -35,8 +35,11 @@ class SaraminCrawler:
         container = browser.find_element(By.CLASS_NAME, 'content')
         blocks = container.find_elements(By.CLASS_NAME, 'item_recruit')        
 
+        if len(blocks) < 30:
+            return False
+
         current_page_data = []
-        for i, block in tqdm(enumerate(blocks), desc=f"Page {page_number}", total=len(blocks), leave=False):
+        for i, block in tqdm(enumerate(blocks), desc=f"Page {page_number}", total=len(blocks), leave=True):
             try:
                 company_name = block.find_element(By.CLASS_NAME, 'corp_name').find_element(By.TAG_NAME, 'a').text
                 job_tit = block.find_element(By.CLASS_NAME, 'job_tit').find_element(By.TAG_NAME, 'a')
@@ -47,7 +50,7 @@ class SaraminCrawler:
                 job_condition = block.find_element(By.CLASS_NAME, 'job_condition').find_elements(By.TAG_NAME, 'span')
                 for j, condition in enumerate(job_condition):
                     if j == 0:
-                        regions = condition.find_elements(By.TAG_NAME, 'a')
+                        regions = condition.find_elements(By.TAG_NAME, 'span')
                         regions = ','.join([region.text for region in regions])
                         options.append(regions)
                     else:
@@ -61,10 +64,10 @@ class SaraminCrawler:
                 current_page_data.append(data)
 
             except NoSuchElementException as e:
-                print(f'\n\nBlock No : {i}, \n\t{e}')
+                # print(f'\n\nBlock No : {i}, \n\t{e}')
+                continue
 
         return current_page_data
-
 
     def crawling(self):
         """crawling을 수행하는 주요 함수."""
@@ -72,24 +75,31 @@ class SaraminCrawler:
         browser.get(self.url)
         self.input_keyword(browser)
 
+        dispatch_element = browser.find_element(By.XPATH, '//*[@id="dispatch"]')
+        browser.execute_script("arguments[0].click();", dispatch_element)
+        headhunting_element = browser.find_element(By.XPATH, '//*[@id="headhunting"]')
+        browser.execute_script("arguments[0].click();", headhunting_element)
+
         idx = 1
         total_data = []
-        while True:
+        while idx < 21:
             if self.debug and idx == 5:
                     break
 
             if idx > 1:
-                url = f'https://www.saramin.co.kr/zf_user/search/recruit?search_area=main&search_done=y&search_optional_item=n&searchType=search&searchword=%EB%94%A5%EB%9F%AC%EB%8B%9D&recruitPage={idx}&recruitSort=relation&recruitPageCount=40&inner_com_type=&company_cd=0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C9%2C10&show_applied=&quick_apply=&except_read=&ai_head_hunting='
+                url = f'https://www.saramin.co.kr/zf_user/search/recruit?searchType=search&searchword=%EB%94%A5%EB%9F%AC%EB%8B%9D&company_cd=0%2C1%2C2%2C3%2C4%2C5%2C6%2C7&panel_type=&search_optional_item=y&search_done=y&panel_count=y&preview=y&recruitPage={idx}&recruitSort=relation&recruitPageCount=40&inner_com_type=&show_applied=&quick_apply=&except_read=&ai_head_hunting=&mainSearch=n'
                 try:
                     browser.get(url)
                 except:
-                    print(f'Page Not Found. Current Page No : {idx}')
+                    # print(f'Page Not Found. Current Page No : {idx}')
                     break
-
             time.sleep(self.wait_sec)
             page_data = self.get_data_from_page(browser, idx)
+
+            if not page_data:
+                break
+
             total_data.extend(page_data)
-                    
             idx += 1
 
         return total_data
