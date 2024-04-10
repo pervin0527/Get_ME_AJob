@@ -19,7 +19,7 @@ def main():
     # save_dataset(f"{SAVE_PATH}", "saramin", saramin_dataset)
 
     ## 원티드 크롤링
-    wanted_crawler = WantedCrawler(KEYWORD, WAIT_SEC, DEBUG)
+    wanted_crawler = WantedCrawler(KEYWORD, WAIT_SEC, TOTAL_SCROLL, DEBUG)
     wanted_dataset = wanted_crawler.crawling()
     save_dataset(f"{SAVE_PATH}", "wanted", wanted_dataset)
     
@@ -29,6 +29,7 @@ if __name__ == "__main__":
     SAVE_PATH = "./outputs"
     KEYWORD = '딥러닝'
     WAIT_SEC = 3
+    TOTAL_SCROLL = 100
     DEBUG = False
 
     main()

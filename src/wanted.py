@@ -7,10 +7,11 @@ from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import NoSuchElementException
 
 class WantedCrawler:
-    def __init__(self, keyword, wait_sec=3, debug=True):
+    def __init__(self, keyword, wait_sec=3, total_scroll=100, debug=True):
         self.url = 'https://www.wanted.co.kr/'
         self.keyword = keyword
         self.wait_sec = wait_sec
+        self.total_scroll = total_scroll
 
         self.debug = debug
         self.options = Options()
@@ -37,21 +38,21 @@ class WantedCrawler:
     def scroll_down(self, browser):
         """스크롤을 내리는 함수."""
 
-        idx = 0 ## For Debug mode
+        idx = 0  # For Debug mode
         last_height = browser.execute_script("return document.body.scrollHeight")
-        while idx < 100:
-            print(f"Page : {idx}")
-            if self.debug and idx > 6:
-                break
-            browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
 
-            time.sleep(1.5)
-            new_height = browser.execute_script("return document.body.scrollHeight")
-            if new_height == last_height:
-                break
-
-            last_height = new_height
-            idx += 1 ## For Debug mode
+        with tqdm(total=self.total_scroll) as pbar:
+            while idx < self.total_scroll:
+                if self.debug and idx > 6:
+                    break
+                browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+                time.sleep(1.5)
+                new_height = browser.execute_script("return document.body.scrollHeight")
+                if new_height == last_height:
+                    break
+                last_height = new_height
+                idx += 1  # For Debug mode
+                pbar.update(1)
 
 
     def crawling(self):
