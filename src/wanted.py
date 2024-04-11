@@ -43,7 +43,7 @@ class WantedCrawler:
 
         with tqdm(total=self.total_scroll) as pbar:
             while idx < self.total_scroll:
-                if self.debug and idx > 6:
+                if self.debug and idx == 1:
                     break
                 browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
                 time.sleep(2.5)
@@ -75,29 +75,35 @@ class WantedCrawler:
 
                 card_browser = webdriver.Chrome()
                 card_browser.get(link)
+                time.sleep(1.5)
 
                 option_block = card_browser.find_element(By.CLASS_NAME, 'JobHeader_JobHeader__Tools__n5Vcg')
                 options = option_block.find_elements(By.CLASS_NAME, 'JobHeader_JobHeader__Tools__Company__Info__omnQX')
                 option_list = [x.text for x in options]
                 option_list = ','.join(option_list)
 
-                main_work_block = card_browser.find_element(By.CLASS_NAME, 'JobDescription_JobDescription__paragraph__Iwfqn')
-                main_works = main_work_block.find_element(By.CLASS_NAME, 'Typography_Typography__body1-reading__KvBaS').find_elements(By.TAG_NAME, 'span')
-                main_work_list = [x.text for x in main_works]
-                main_work_list = re.sub(r'[ㆍ\-\[\]•]', '', main_work_list[0]).split('\n')
-                main_work_list = ','.join(main_work_list)
-
-                requirements_block = card_browser.find_element(By.CLASS_NAME, 'JobDescription_JobDescription__paragraph__Iwfqn')
-                requirements = requirements_block.find_elements(By.TAG_NAME, 'span')
-                requirement_list = [x.text for x in requirements]
-                requirement_list = re.sub(r'[ㆍ\-\[\]•]', '', requirement_list[0]).split('\n')
-                requirement_list = ','.join(requirement_list)
+                card_browser.find_element(By.CLASS_NAME, 'Button_Button__outlinedSizeLarge__n_OOf').click() ## 상세 정보 더 보기 버튼
+                div_blocks = card_browser.find_elements(By.CLASS_NAME, 'JobDescription_JobDescription__paragraph__Iwfqn')
                 
-                detail_fields = main_work_list + requirement_list
+                detail_fields = []
+                for db in div_blocks:
+                    db_title = db.find_element(By.TAG_NAME, 'h3').text
+                    
+                    if db_title in ['주요업무', '자격요건', '우대사항']:
+                        db_li = db.find_elements(By.TAG_NAME, 'span')
+                        # db_li = [re.sub(r'[^가-힣A-Za-z0-9\s]', '', x.text).replace('\n', ',') for x in db_li]
+                        # db_li = [x.text.replace('\n', ',') for x in db_li]
+                        
+                        db_li = [re.sub('<br>', '', x.get_attribute('innerHTML')).replace('\n', ',').strip() for x in db_li]
+                        db_li = [re.sub(r'<[^>]+>', '', x) for x in db_li]
+                        db_li = [x.replace("• ", ",").replace('ㆍ', ",") for x in db_li][0:]
+                        detail_fields.extend(db_li)
+                detail_fields = ','.join(detail_fields)
+                
                 data = {'회사명' : company_name, '채용공고 제목' : title, '채용공고 세부 사항' : option_list, '기술 세부 사항' : detail_fields, '링크' : link}
-
                 card_browser.close()
                 total_data.append(data)
+                break
 
             except NoSuchElementException as e:
                 print(e)
