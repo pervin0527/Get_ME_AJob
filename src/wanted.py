@@ -1,3 +1,4 @@
+import re
 import time
 
 from tqdm import tqdm
@@ -7,9 +8,8 @@ from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import NoSuchElementException
 
 class WantedCrawler:
-    def __init__(self, keyword, wait_sec=3, total_scroll=100, debug=True):
+    def __init__(self, wait_sec=3, total_scroll=100, debug=True):
         self.url = 'https://www.wanted.co.kr/'
-        self.keyword = keyword
         self.wait_sec = wait_sec
         self.total_scroll = total_scroll
 
@@ -19,8 +19,8 @@ class WantedCrawler:
             self.options.add_experimental_option("detach", True)
 
 
-    def input_keyword(self, browser):
-        """검색창에 keyword를 입력"""
+    def input_setup(self, browser):
+        """검색조건 설정"""
         ## 네비게이션 바에서 [채용] 버튼 클릭.
         browser.find_element(By.CLASS_NAME, 'Menu_jobListLink__GYHAI').click()
         time.sleep(1.5)
@@ -46,7 +46,7 @@ class WantedCrawler:
                 if self.debug and idx > 6:
                     break
                 browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-                time.sleep(1.5)
+                time.sleep(2.5)
                 new_height = browser.execute_script("return document.body.scrollHeight")
                 if new_height == last_height:
                     break
@@ -59,10 +59,9 @@ class WantedCrawler:
         """crawling을 수행하는 주요 함수."""
         browser = webdriver.Chrome(options=self.options)
         browser.get(self.url)
-        self.input_keyword(browser)
+        self.input_setup(browser)
 
         self.scroll_down(browser)
-
         container = browser.find_element(By.CLASS_NAME, 'List_List__FsLch')
         blocks = container.find_elements(By.CLASS_NAME, 'JobCard_JobCard__oZL4d')
 
@@ -74,10 +73,34 @@ class WantedCrawler:
                 title = card.get_attribute('data-position-name')
                 link = card.get_attribute('href')
 
-                data = {'회사명' : company_name, '채용공고 제목' : title, '링크' : link}
+                card_browser = webdriver.Chrome()
+                card_browser.get(link)
+
+                option_block = card_browser.find_element(By.CLASS_NAME, 'JobHeader_JobHeader__Tools__n5Vcg')
+                options = option_block.find_elements(By.CLASS_NAME, 'JobHeader_JobHeader__Tools__Company__Info__omnQX')
+                option_list = [x.text for x in options]
+                option_list = ','.join(option_list)
+
+                main_work_block = card_browser.find_element(By.CLASS_NAME, 'JobDescription_JobDescription__paragraph__Iwfqn')
+                main_works = main_work_block.find_element(By.CLASS_NAME, 'Typography_Typography__body1-reading__KvBaS').find_elements(By.TAG_NAME, 'span')
+                main_work_list = [x.text for x in main_works]
+                main_work_list = re.sub(r'[ㆍ\-\[\]•]', '', main_work_list[0]).split('\n')
+                main_work_list = ','.join(main_work_list)
+
+                requirements_block = card_browser.find_element(By.CLASS_NAME, 'JobDescription_JobDescription__paragraph__Iwfqn')
+                requirements = requirements_block.find_elements(By.TAG_NAME, 'span')
+                requirement_list = [x.text for x in requirements]
+                requirement_list = re.sub(r'[ㆍ\-\[\]•]', '', requirement_list[0]).split('\n')
+                requirement_list = ','.join(requirement_list)
+                
+                detail_fields = main_work_list + requirement_list
+                data = {'회사명' : company_name, '채용공고 제목' : title, '채용공고 세부 사항' : option_list, '기술 세부 사항' : detail_fields, '링크' : link}
+
+                card_browser.close()
                 total_data.append(data)
 
             except NoSuchElementException as e:
-                print(f'\n\nBlock No : {i}, \n\t{e}')
+                print(e)
 
+        browser.close()
         return total_data

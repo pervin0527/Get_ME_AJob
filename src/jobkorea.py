@@ -9,9 +9,8 @@ from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import NoSuchElementException
 
 class JobKoreaCrawler:
-    def __init__(self, keyword, wait_sec=3, debug=True):
+    def __init__(self, wait_sec=3, debug=True):
         self.url = 'https://www.jobkorea.co.kr/'
-        self.keyword = keyword
         self.wait_sec = wait_sec
         
         self.debug = debug
@@ -20,10 +19,8 @@ class JobKoreaCrawler:
             self.options.add_experimental_option("detach", True)
 
 
-    def input_keyword(self, browser):
-        """검색창에 keyword를 입력."""
-        # input_box = browser.find_element(By.CLASS_NAME, 'smKey').find_element(By.TAG_NAME, 'input')
-        # input_box.send_keys(self.keyword + Keys.RETURN)
+    def input_setup(self, browser):
+        """검색조건 설정"""
         browser.find_element(By.ID, 'gnbGi').click()
         browser.find_element(By.XPATH, '//*[@id="devSearchForm"]/div[2]/div/div[1]/dl[1]/dt/p').click()
         browser.find_element(By.XPATH, '//*[@id="devSearchForm"]/div[2]/div/div[1]/dl[1]/dd[2]/div[2]/dl[1]/dd/div[1]/ul/li[6]/label/span').click()
@@ -33,9 +30,6 @@ class JobKoreaCrawler:
 
     def get_data_from_page(self, browser, page_number):
         """현재 페이지에 있는 항목들에서 데이터 가져오기."""
-        # container = browser.find_element(By.CLASS_NAME, 'list-default')
-        # blocks = container.find_elements(By.CLASS_NAME, 'list-post')
-
         container = browser.find_element(By.CLASS_NAME, 'tplJobList').find_element(By.TAG_NAME, 'tbody')
         blocks = container.find_elements(By.TAG_NAME, 'tr')
 
@@ -61,7 +55,6 @@ class JobKoreaCrawler:
                 current_page_data.append(data)
 
             except NoSuchElementException as e:
-                # print(f'\n\nBlock No : {i}, \n\t{e}')
                 continue
 
         return current_page_data
@@ -71,7 +64,7 @@ class JobKoreaCrawler:
         """crawling을 수행하는 주요 함수."""
         browser = webdriver.Chrome(options=self.options)
         browser.get(self.url)
-        self.input_keyword(browser)
+        self.input_setup(browser)
 
         idx = 1
         total_data = []
@@ -80,12 +73,10 @@ class JobKoreaCrawler:
                     break
 
             if idx > 1:
-                # url = f'https://www.jobkorea.co.kr/Search/?stext=%EB%94%A5%EB%9F%AC%EB%8B%9D&tabType=recruit&Page_No={idx}'
                 url = f'https://www.jobkorea.co.kr/recruit/joblist?menucode=local&localorder=1#anchorGICnt_{idx}'
                 try:
                     browser.get(url)
                 except:
-                    # print(f'Page Not Found. Current Page No : {idx}')
                     break
         
             time.sleep(self.wait_sec)
@@ -97,4 +88,5 @@ class JobKoreaCrawler:
             total_data.extend(page_data)
             idx += 1
 
+        browser.close()
         return total_data

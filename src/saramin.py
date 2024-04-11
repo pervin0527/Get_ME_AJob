@@ -7,9 +7,8 @@ from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import NoSuchElementException
 
 class SaraminCrawler:
-    def __init__(self, keyword, wait_sec=3, debug=True):
+    def __init__(self, wait_sec=3, debug=True):
         self.url = 'https://www.saramin.co.kr/zf_user/'
-        self.keyword = keyword
         self.wait_sec = wait_sec
 
         self.debug = debug
@@ -18,8 +17,8 @@ class SaraminCrawler:
             self.options.add_experimental_option("detach", True)
 
 
-    def input_keyword(self, browser):
-        """검색창에 keyword를 입력"""
+    def input_setup(self, browser):
+        """검색조건 설정"""
         browser.find_element(By.CLASS_NAME, 'recruit').click()
         seoul_all = browser.find_element(By.XPATH, '//*[@id="loc_mcd_101000"]') ## 서울 전체
         browser.execute_script("arguments[0].click();", seoul_all)
@@ -73,7 +72,7 @@ class SaraminCrawler:
         """crawling을 수행하는 주요 함수."""
         browser = webdriver.Chrome(options=self.options)
         browser.get(self.url)
-        self.input_keyword(browser)
+        self.input_setup(browser)
 
         idx = 1
         total_data = []
@@ -86,7 +85,6 @@ class SaraminCrawler:
                 try:
                     browser.get(url)
                 except:
-                    # print(f'Page Not Found. Current Page No : {idx}')
                     break
 
             time.sleep(self.wait_sec)
@@ -98,4 +96,5 @@ class SaraminCrawler:
             total_data.extend(page_data)
             idx += 1
 
+        browser.close()
         return total_data
