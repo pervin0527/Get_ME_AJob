@@ -1,5 +1,5 @@
-from sqlalchemy.orm import Session
 from . import models, schemas
+from sqlalchemy.orm import Session
 
 def create_job_post(db: Session, job_post: schemas.JobPostCreate):
     db_job_post = models.JobPost(**job_post.dict())

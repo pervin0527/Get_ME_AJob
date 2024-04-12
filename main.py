@@ -24,7 +24,6 @@ def main():
     save_dataset(f"{SAVE_PATH}", "wanted", wanted_dataset)
     
 
-
 if __name__ == "__main__":
     SAVE_PATH = "./outputs"
     KEYWORD = '딥러닝'
