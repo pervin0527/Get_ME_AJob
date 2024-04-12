@@ -105,7 +105,7 @@ class WantedCrawler:
                 total_data.append(data)
 
             except NoSuchElementException as e:
-                print(e)
+                continue
 
         browser.close()
         return total_data
