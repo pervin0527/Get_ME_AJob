@@ -1,7 +1,7 @@
 ## uvicorn sql_app.main:app --reload
 import pandas as pd
 
-from sqlalchemy import func
+from sqlalchemy import func, text
 from sqlalchemy.orm import Session
 from fastapi import Depends, FastAPI, HTTPException
 
@@ -89,6 +89,10 @@ def delete_job_post(job_post_id: int, db: Session = Depends(get_db)):
 def clear_data(db: Session = Depends(get_db)):
     try:
         db.query(models.JobPost).delete()
+
+        sequence_name = "job_posts_id_seq"
+        db.execute(text(f"ALTER SEQUENCE {sequence_name} RESTART WITH 1"))
+
         db.commit()
         return {"message": "모든 데이터가 성공적으로 제거되었습니다."}
     except Exception as e:
