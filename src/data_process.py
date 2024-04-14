@@ -6,11 +6,10 @@ from src.util import draw_main_graph, draw_sub_graph
 
 
 def parse_and_count_associated_fields(field_counts, counter):
-    field_counts = field_counts.split(',')
     for field_count in field_counts:
         try:
-            field, count = field_count.split(':')
-            counter[field.strip()] += int(count.strip())
+            for field, count in field_count.items():
+                counter[field.strip()] += int(count)
         except ValueError:
             print(f"Skipping malformed entry: {field_count}")
 
@@ -49,7 +48,7 @@ def determine_field(words):
         elif word in METAVERS:
             fields.append("메타버스")
     
-    # 모든 단어 검사 후 분야가 없으면 Unknown 추가
+    ## 모든 단어 검사 후 분야가 없으면 Unknown 추가
     if not fields:
         fields.append('Unknown')
     
@@ -78,9 +77,9 @@ def count_technologies(row):
     field_counts = {field: Counter([word for word in words if word in field_lists[field]]) for field in row['주요분야'].split(", ")}
     for field, counter in field_counts.items():
         for tech, count in counter.items():
-            field_technologies.append(f"{tech} : {count}")
+            field_technologies.append({tech : count})
     
-    return ", ".join(field_technologies)
+    return field_technologies
 
 
 def preprocessing(*args):
@@ -93,11 +92,27 @@ def preprocessing(*args):
     total_df['연관 분야'] = total_df.apply(count_technologies, axis=1)
 
     field_counts = pd.Series([field for sublist in total_df['주요분야'].dropna().str.split(", ") for field in sublist]).value_counts()
+    main_field_list = field_counts.index.to_list()
+    main_field_counts = list(field_counts.values)
+    
+    main_field_list.pop(4)
+    main_field_counts.pop(4)
     draw_main_graph(field_counts)
 
-    for keyword in field_counts.index.to_list():
+    related_field_list = [[] for _ in main_field_list]
+    for i, keyword in enumerate(main_field_list):
         filtered_data = total_df[total_df['주요분야'].str.contains(keyword, na=False)]
         
         related_field_counter = Counter()
         filtered_data['연관 분야'].dropna().apply(lambda x: parse_and_count_associated_fields(x, related_field_counter))
-        draw_sub_graph(related_field_counter, keyword)
+
+        top_related_fields = related_field_counter.most_common(10)
+        if top_related_fields:
+            related_fields, related_counts = zip(*top_related_fields)
+            related_field_list[i] = [{field: count} for field, count in zip(related_fields, related_counts)]
+            draw_sub_graph(related_fields, related_counts, keyword)
+        else:
+            related_field_list[i] = []
+
+    result = pd.DataFrame({'주요분야': main_field_list, '공고수': main_field_counts, '연관분야': related_field_list})
+    result.to_csv('test.csv')
