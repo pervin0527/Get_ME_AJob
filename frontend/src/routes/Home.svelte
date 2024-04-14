@@ -8,7 +8,7 @@
     let endpoint = "jobkorea_list"; // Default endpoint
   
     function fetchData(endpoint) {
-      return fetch(`http://127.0.0.1:8000/api/data/${endpoint}`) // local에서 할 때 127.0.0.1으로 변경해야 됨!!
+      return fetch(`http://13.125.59.124:8000/api/data/${endpoint}`) // local에서 할 때 127.0.0.1으로 변경해야 됨!!
         .then(response => {
           if (!response.ok) {
             throw new Error("Network response was not ok");
