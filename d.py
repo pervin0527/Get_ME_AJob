@@ -1,4 +1,4 @@
-from models import Jobkorea, Saramin, FieldAnal, CVDetail, NLPDetail
+from models import Jobkorea, Saramin, FieldAnal
 from datetime import datetime
 from database import SessionLocal
 import pandas as pd
@@ -6,7 +6,7 @@ import random
 
 db = SessionLocal()
 
-jobkorea_db = pd.read_csv('./outputs/jobkorea.csv')
+jobkorea_db = pd.read_csv('./outputs/job_korea.csv')
 
 for i in range(len(jobkorea_db)):
     elem = jobkorea_db.loc[i]
@@ -36,23 +36,9 @@ for i in range(len(saramin_db)):
 
 for i in range(50):
     field = f'{i}'
-    count = random.random() * i
+    count = random.randint(5, 15) * i
 
     q = FieldAnal(field=field, count=count)
-    db.add(q)
-
-for i in range(10):
-    skill = f'{i}'
-    count = random.random() * i
-
-    q = CVDetail(skill=skill, count=count)
-    db.add(q)
-
-for i in range(10):
-    skill = f'{i}'
-    count = random.random() * i
-
-    q = NLPDetail(skill=skill, count=count)
     db.add(q)
 
 db.commit()
