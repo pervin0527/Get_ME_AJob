@@ -7,7 +7,7 @@
             //field_anal_list = json
         //})
 
-        fetch("http://13.125.59.124:8000/api/data/field_anal").then((response) => {
+        fetch(`http://127.0.0.1:8000/api/data/field_anal`).then((response) => {
             response.json().then((json) => {
                 field_anal_list = json
             })
