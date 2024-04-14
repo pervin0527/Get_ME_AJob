@@ -25,22 +25,12 @@ def main():
 
     jobkorea_df = pd.read_csv('./outputs/jobkorea.csv')
     saramin_df = pd.read_csv('./outputs/saramin.csv')
-    wanted_df = pd.read_csv('./outputs/wanted.csv')
-    
-    total_df = preprocessing(jobkorea_df, saramin_df, wanted_df)
+    #wanted_df = pd.read_csv('./outputs/wanted.csv')
 
-    field_counter = {}
-    for field_str in total_df['분야']:
-        fields = field_str.split(',')
-        for field in fields:
-            field = field.strip()
-            if field == '':
-                continue
+    # toatal frame이 완전 DB 형태의 dataframe
+    total_df = preprocessing(jobkorea_df, saramin_df)
 
-            if field in field_counter:
-                field_counter[field] += 1
-            else:
-                field_counter[field] = 1
+ 
     
     
 
