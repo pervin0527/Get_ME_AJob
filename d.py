@@ -1,4 +1,4 @@
-from models import Jobkorea, Saramin, FieldAnal
+from models import Jobkorea, Saramin, FieldAnal, CVDetail, NLPDetail
 from datetime import datetime
 from database import SessionLocal
 import pandas as pd
@@ -41,4 +41,19 @@ for i in range(50):
     q = FieldAnal(field=field, count=count)
     db.add(q)
 
+for i in range(10):
+    skill = f'{i}'
+    count = random.random() * i
+
+    q = CVDetail(skill=skill, count=count)
+    db.add(q)
+
+for i in range(10):
+    skill = f'{i}'
+    count = random.random() * i
+
+    q = NLPDetail(skill=skill, count=count)
+    db.add(q)
+
 db.commit()
+

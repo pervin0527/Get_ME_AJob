@@ -43,6 +43,7 @@
     {#if endpoint === 'field_list'}
       {#each dataList as data}
         <li><a use:link href="/field_detail/{endpoint}_{data.id}">{data.field}</a></li>
+        <br>{data.count}
       {/each}
 
     {:else}
@@ -50,5 +51,4 @@
         <li><a use:link href="/data_detail/{endpoint}_{data.id}">{data.company}</a></li>
       {/each}
     {/if}
-  </ul>
-  
+  </ul>  
