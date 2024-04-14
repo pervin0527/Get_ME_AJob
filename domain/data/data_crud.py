@@ -15,13 +15,9 @@ def get_saramin_list(db: Session):
         .all()
     return saramin_list
 
-def get_jobkorea_detail(db: Session, jobkorea_id: int):
-    jobkorea_data = db.query(Jobkorea).get(jobkorea_id)
-    return jobkorea_data
-
-def get_saramin_detail(db: Session, saramin_id: int):
-    saramin_data = db.query(Saramin).get(saramin_id)
-    return saramin_data
+def get_field_anal_list(db: Session):
+    field_anal_list = db.query(FieldAnal).order_by(FieldAnal.id.desc()).all()
+    return field_anal_list
 
 def get_data_detail(db: Session, data_id: str):
     id_list = data_id.split('_')
@@ -35,6 +31,9 @@ def get_data_detail(db: Session, data_id: str):
 
     return data_detail
 
-def get_field_anal_list(db: Session):
-    field_anal_list = db.query(FieldAnal).order_by(FieldAnal.id.desc()).all()
-    return field_anal_list
+def get_field_detail(db: Session, data_id: str):
+    id_list = data_id.split('_')
+    id = int(id_list[2])
+    data_detail = db.query(FieldAnal).get(id)
+
+    return data_detail

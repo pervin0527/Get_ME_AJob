@@ -7,7 +7,7 @@
   const routes = {
     '/': Home,
     '/data_detail/:data_id': Detail,
-    '/field_anal': Field,
+    '/field_detail/:data_id': Field,
   }
 </script>
 

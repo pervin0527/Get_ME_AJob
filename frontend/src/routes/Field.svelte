@@ -1,24 +1,29 @@
 <script>
     import fastapi from "../lib/api"
-    let field_anal_list = []
 
-    function get_field_anal_list() {
-        //fastapi('get', '/api/data/field_anal', {}, (json) => {
-            //field_anal_list = json
+    export let params = {}
+    let data_id = params.data_id
+    let detail = {}
+
+    function get_detail() {        
+        //fastapi("get", "/api/data/data_detail/" + data_id, {}, (json) => {
+            //detail = json
         //})
+        
 
-        fetch(`http://13.125.59.124:8000/api/data/field_anal`).then((response) => {
+        fetch(`http://127.0.0.1:8000/api/data/field_detail/${data_id}`).then((response) => {
             response.json().then((json) => {
-                field_anal_list = json
+                detail = json
             })
         })
+
     }
 
-    get_field_anal_list()
+    get_detail()
 </script>
 
-<ul>
-    {#each field_anal_list as field}
-        <li>{field.field}<br>{field.count}</li>
-    {/each}
-</ul>
+<h1>{detail.field}</h1>
+<div>
+    {detail.count}<br>
+    <!-- {detail.skill}<br> db에 skill값을 저장하게 되면 해당 값을 불러온다. -->
+</div>
