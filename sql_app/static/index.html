@@ -4,9 +4,56 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Job Posting Analysis Dashboard</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      #fieldSelect,
+      #mainGraph {
+        margin-top: 20px;
+      }
+      #mainGraph {
+        max-width: 100%;
+        height: auto;
+      }
+    </style>
+    <script>
+      $(document).ready(function () {
+        $.get("/fields", function (fields) {
+          fields.forEach(function (field) {
+            $("#fieldSelect").append(
+              $("<option>", {
+                value: field,
+                text: field,
+              })
+            );
+          });
+        });
+
+        $("#fieldSelect").change(function () {
+          var selectedField = $(this).val();
+          if (selectedField === "Select a field") {
+            $("#mainGraph").attr("src", "/static/graph_main.png");
+          } else {
+            $.get(`/draw-graph/${selectedField}`, function () {
+              $("#mainGraph").attr(
+                "src",
+                `/static/graph_relation_${selectedField}.png`
+              );
+            });
+          }
+        });
+      });
+    </script>
   </head>
   <body>
     <h1>Job Posting Analysis Dashboard</h1>
+    <select id="fieldSelect">
+      <option value="Select a field">Select a field</option>
+    </select>
     <img id="mainGraph" src="/static/graph_main.png" alt="Main Graph" />
   </body>
 </html>

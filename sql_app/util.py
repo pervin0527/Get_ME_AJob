@@ -1,4 +1,3 @@
-import json
 import matplotlib
 matplotlib.use('Agg')
 
@@ -19,11 +18,7 @@ def draw_main_graph(names, counts, filepath):
     plt.close()
 
 
-def draw_sub_graph(related_fields, keyword):
-    fields = json.loads(related_fields)  # JSON 문자열을 파싱, 필요에 따라 수정
-    counts = [field['count'] for field in fields]
-    labels = [field['name'] for field in fields]
-
+def draw_sub_graph(fields, counts, keyword):
     plt.figure(figsize=(12, 8))
     sns.barplot(x=list(fields), y=list(counts), palette='viridis')
     plt.title(f'Top 10 Related Fields for {keyword}')
