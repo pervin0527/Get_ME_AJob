@@ -139,11 +139,11 @@ async def startup_event():
     scheduler.start()
     scheduler.print_jobs()
 
-app.mount("/assets", StaticFiles(directory="frontend/dist/assets"))
+app.mount("/assets", StaticFiles(directory="../../frontend/dist/assets"))
 
 @app.get("/")
 def index():
-    return FileResponse("frontend/dist/index.html")
+    return FileResponse("../../frontend/dist/index.html")
 
 '''
 @app.get("/", response_class=HTMLResponse)
