@@ -94,7 +94,7 @@ async def load_data():
     #total_df['related_field'] = total_df['related_field'].apply(lambda x: json.dumps(x))
     total_df = total_df[total_df['main_field'] != 'Unknown']
     total_df['related_field'] = total_df['related_field'].apply(lambda x: json.dumps(x) if isinstance(x, list) else x)
-    draw_main_graph(total_df['main_field'].to_list(), total_df['num_posts'].to_list(), f"{STATIC_DIR}/graph_main.png")
+    # draw_main_graph(total_df['main_field'].to_list(), total_df['num_posts'].to_list(), f"{STATIC_DIR}/graph_main.png")
 
     db = SessionLocal()
     existing_data = pd.read_sql(sql="SELECT main_field, num_posts, related_field FROM job_posts", con=db.bind)
