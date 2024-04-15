@@ -26,6 +26,9 @@ from src.saramin import SaraminCrawler
 from src.jobkorea import JobKoreaCrawler
 from src.data_process import preprocessing
 
+from starlette.responses import FileResponse
+from starlette.staticfiles import StaticFiles
+
 
 WAIT_SEC = 3
 DEBUG = True
@@ -136,13 +139,19 @@ async def startup_event():
     scheduler.start()
     scheduler.print_jobs()
 
+app.mount("/assets", StaticFiles(directory="frontend/dist/assets"))
 
+@app.get("/")
+def index():
+    return FileResponse("frontend/dist/index.html")
+
+'''
 @app.get("/", response_class=HTMLResponse)
 async def read_main():
     with open(f"{STATIC_DIR}/index.html", "r") as f:
         html_content = f.read()
     return HTMLResponse(content=html_content)
-
+'''
 
 @app.get("/fields", response_class=JSONResponse)
 async def get_fields():
