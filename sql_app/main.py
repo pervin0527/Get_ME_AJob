@@ -26,6 +26,9 @@ from src.saramin import SaraminCrawler
 from src.jobkorea import JobKoreaCrawler
 from src.data_process import preprocessing
 
+from starlette.responses import FileResponse
+from starlette.staticfiles import StaticFiles
+
 
 WAIT_SEC = 3
 DEBUG = True
@@ -35,7 +38,9 @@ app.include_router(jp_router)
 
 CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
 STATIC_DIR = os.path.join(CURRENT_DIR, "static")
+ASSET_DIR = os.path.join(CURRENT_DIR, 'frontend/dist/assets')
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+app.mount("/assets", StaticFiles(directory=ASSET_DIR), name='assets')
 
 scheduler = AsyncIOScheduler()
 
@@ -82,14 +87,14 @@ async def load_data():
     total_df = preprocessing(jobkorea_dataset, saramin_dataset)
     total_df.columns = ['main_field', 'num_posts', 'related_field']
 
-    # total_df = pd.read_csv('/Users/pervin0527/Get_ME_AJob/test.csv')
-    # total_df.columns = ['index', 'main_field', 'num_posts', 'related_field']
-    # total_df.drop(columns=['index'], inplace=True)
+    #total_df = pd.read_csv('/Users/pervin0527/Get_ME_AJob/test.csv')
+    #total_df.columns = ['index', 'main_field', 'num_posts', 'related_field']
+    #total_df.drop(columns=['index'], inplace=True)
 
-    # total_df['related_field'] = total_df['related_field'].apply(lambda x: json.dumps(x))
+    #total_df['related_field'] = total_df['related_field'].apply(lambda x: json.dumps(x))
     total_df = total_df[total_df['main_field'] != 'Unknown']
     total_df['related_field'] = total_df['related_field'].apply(lambda x: json.dumps(x) if isinstance(x, list) else x)
-    draw_main_graph(total_df['main_field'].to_list(), total_df['num_posts'].to_list(), f"{STATIC_DIR}/graph_main.png")
+    # draw_main_graph(total_df['main_field'].to_list(), total_df['num_posts'].to_list(), f"{STATIC_DIR}/graph_main.png")
 
     db = SessionLocal()
     existing_data = pd.read_sql(sql="SELECT main_field, num_posts, related_field FROM job_posts", con=db.bind)
@@ -136,13 +141,18 @@ async def startup_event():
     scheduler.start()
     scheduler.print_jobs()
 
+@app.get("/")
+def index():
+    index_dir = '/'.join(ASSET_DIR.split('/')[:-1])
+    return FileResponse(f"{index_dir}/index.html")
 
+'''
 @app.get("/", response_class=HTMLResponse)
 async def read_main():
     with open(f"{STATIC_DIR}/index.html", "r") as f:
         html_content = f.read()
     return HTMLResponse(content=html_content)
-
+'''
 
 @app.get("/fields", response_class=JSONResponse)
 async def get_fields():
