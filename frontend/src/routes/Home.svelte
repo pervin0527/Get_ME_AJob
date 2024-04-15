@@ -7,7 +7,7 @@
     
   
     let dataList = [];
-    let endpoint = "field_list"; // Default endpoint
+    let endpoint = "job_post_list"; // Default endpoint
   
     function fetchData(endpoint) {
       return fetch(`http://127.0.0.1:8000/api/data/${endpoint}`) // local에서 할 때 127.0.0.1으로 변경해야 됨!!
@@ -38,14 +38,14 @@
   <select bind:value={endpoint} on:change={() => switchEndpoint(endpoint)}>
     <option value="jobkorea_list">Job Korea</option>
     <option value="saramin_list">Saramin</option>
-    <option value="field_list">Field_Analysis</option>
+    <option value="job_post_list">JobPost</option>
   </select>
   
   <ul>
-    {#if endpoint === 'field_list'}
+    {#if endpoint === 'job_post_list'}
       {#each dataList as data}
-        <li><a use:link href="/field_detail/{endpoint}_{data.id}">{data.field}</a></li>
-        {data.cnt}<br>
+        <li><a use:link href="/job_post_detail/{endpoint}_{data.id}">{data.main_field}</a></li>
+        {data.num_posts}<br>
       {/each}
 
     {:else}

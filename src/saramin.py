@@ -72,18 +72,20 @@ class SaraminCrawler:
         """crawling을 수행하는 주요 함수."""
         browser = webdriver.Chrome(options=self.options)
         browser.get(self.url)
+        time.sleep(5)
         self.input_setup(browser)
 
         idx = 1
         total_data = []
         while True:
-            if self.debug and idx == 5:
+            if self.debug and idx == 3:
                     break
 
             if idx > 1:
                 url = f'https://www.saramin.co.kr/zf_user/jobs/list/domestic?page={idx}&loc_mcd=101000%2C102000&cat_kewd=108%2C109&search_optional_item=n&search_done=y&panel_count=y&preview=y&isAjaxRequest=0&page_count=50&sort=RL&type=domestic&is_param=1&isSearchResultEmpty=1&isSectionHome=0&searchParamCount=2#searchTitle'
                 try:
                     browser.get(url)
+                    time.sleep(5)
                 except:
                     break
 

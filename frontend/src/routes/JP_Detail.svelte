@@ -12,8 +12,7 @@
             //detail = json
         //})
         
-
-        fetch(`http://127.0.0.1:8000/api/data/field_detail/${data_id}`).then((response) => {
+        fetch(`http://127.0.0.1:8000/api/data/job_post_detail/${data_id}`).then((response) => {
             response.json().then((json) => {
                 detail = json
             })
@@ -24,9 +23,8 @@
     get_detail()
 </script>
 
-<h1>{detail.field}</h1>
+<h1>{detail.main_field}</h1>
 <div>
-    {detail.cnt}<br>
-    {detail.related}
-    <!-- {detail.skill}<br> db에 skill값을 저장하게 되면 해당 값을 불러온다. -->
+    {detail.num_posts}<br>
+    {detail.related_field}
 </div>

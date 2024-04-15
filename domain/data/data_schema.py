@@ -3,7 +3,9 @@
 
 import datetime
 
-from pydantic import BaseModel
+import json
+from pydantic import BaseModel, validator
+from typing import Optional, List, Dict, Any
 
 
 class Jobkorea(BaseModel):
@@ -42,11 +44,21 @@ class Detail(BaseModel):
     class Config:
         orm_mode = True
 
-class FA(BaseModel):
+class JobPostBase(BaseModel):
     id: int
-    field: str
-    cnt: int
-    related: str
+    main_field: str
+    num_posts: int
+    related_field: Optional[List[Dict[str, Any]]] = None # 데이터 타입을 일정하게 설정해야됨
+
+    @validator('related_field', pre=True, always=True)
+    def ensure_json(cls, v):
+        if isinstance(v, str):
+            v = v.replace("'", '"')  # 작은따옴표를 큰따옴표로 변환
+            try:
+                return json.loads(v)
+            except json.JSONDecodeError:
+                raise ValueError("related_field must be a valid JSON list")
+        return v
 
     class Config:
         orm_mode = True

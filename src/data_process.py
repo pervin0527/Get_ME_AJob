@@ -118,3 +118,5 @@ def preprocessing(*args):
 
     result = pd.DataFrame({'주요분야': main_field_list, '공고수': main_field_counts, '연관분야': related_field_list})
     result.to_csv('test.csv')
+
+    return result

@@ -21,17 +21,17 @@ def saramin_list(db: Session = Depends(get_db)):
     _saramin_list = data_crud.get_saramin_list(db)
     return _saramin_list
 
-@router.get('/field_list', response_model=list[data_schema.FA])
+@router.get('/job_post_list', response_model=list[data_schema.JobPostBase])
 def field_anal(db: Session = Depends(get_db)):
-    _field_anal = data_crud.get_field_anal_list(db)
-    return _field_anal
+    _job_post_list = data_crud.get_job_post_list(db)
+    return _job_post_list
 
 @router.get('/data_detail/{data_id}', response_model=data_schema.Detail)
 def data_detail(data_id: str, db: Session=Depends(get_db)):
     data_detail = data_crud.get_data_detail(db, data_id=data_id)
     return data_detail
 
-@router.get('/field_detail/{data_id}', response_model=data_schema.FA)
+@router.get('/job_post_detail/{data_id}', response_model=data_schema.JobPostBase)
 def field_detail(data_id: str, db: Session=Depends(get_db)):
-    field_detail = data_crud.get_field_detail(db, data_id=data_id)
+    field_detail = data_crud.get_job_post_detail(db, data_id=data_id)
     return field_detail

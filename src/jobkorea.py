@@ -64,18 +64,20 @@ class JobKoreaCrawler:
         """crawling을 수행하는 주요 함수."""
         browser = webdriver.Chrome(options=self.options)
         browser.get(self.url)
+        time.sleep(3)
         self.input_setup(browser)
 
         idx = 1
         total_data = []
         while True:
-            if self.debug and idx == 2:
+            if self.debug and idx == 3:
                     break
 
             if idx > 1:
                 url = f'https://www.jobkorea.co.kr/recruit/joblist?menucode=local&localorder=1#anchorGICnt_{idx}'
                 try:
                     browser.get(url)
+                    time.sleep(3)
                 except:
                     break
         

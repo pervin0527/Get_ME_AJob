@@ -1,6 +1,6 @@
 # DB에서 데이터를 가져오거나 입력하는 역할을 수행
 
-from models import Jobkorea, Saramin, FieldAnal
+from models import Jobkorea, Saramin, JobPost
 from sqlalchemy.orm import Session
 
 def get_jobkorea_list(db: Session):
@@ -15,8 +15,8 @@ def get_saramin_list(db: Session):
         .all()
     return saramin_list
 
-def get_field_anal_list(db: Session):
-    field_anal_list = db.query(FieldAnal).order_by(FieldAnal.id.desc()).all()
+def get_job_post_list(db: Session):
+    field_anal_list = db.query(JobPost).order_by(JobPost.id.desc()).all()
     return field_anal_list
 
 def get_data_detail(db: Session, data_id: str):
@@ -31,9 +31,9 @@ def get_data_detail(db: Session, data_id: str):
 
     return data_detail
 
-def get_field_detail(db: Session, data_id: str):
+def get_job_post_detail(db: Session, data_id: str):
     id_list = data_id.split('_')
-    id = int(id_list[2])
-    data_detail = db.query(FieldAnal).get(id)
+    id = int(id_list[3])
+    data_detail = db.query(JobPost).get(id)
 
     return data_detail

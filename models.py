@@ -37,11 +37,10 @@ class Wanted(Base):
     link = Column(String, nullable=False)
     create_date = Column(DateTime, nullable=False)
 
-class FieldAnal(Base):
-    __tablename__ = 'field_anal'
+class JobPost(Base):
+    __tablename__ = 'job_posts'
 
     id = Column(Integer, primary_key=True)
-    field = Column(String, nullable=False)
-    cnt = Column(Integer, nullable=False)
-    related = Column(JSON, nullable=True)
-    # skill_list = Column(~~)
+    main_field = Column(String, nullable=False)
+    num_posts = Column(Integer, nullable=False)
+    related_field = Column(JSON, nullable=True) # 데이터 타입을 일정하게 설정해야됨

@@ -6,25 +6,25 @@ from src.jobkorea import JobKoreaCrawler
 from utils.util import save_dataset
 from src.data_process import preprocessing
 
-from models import Jobkorea, Saramin, Wanted, FieldAnal
+from models import Jobkorea, Saramin, JobPost
 from datetime import datetime
 from database import SessionLocal
 
 def main():
-
+    '''
     # 시간이 너무 많이 걸려서 주석처리 후 수행
     ## 잡코리아 크롤링
     jobkorea_crawler = JobKoreaCrawler()
     jobkorea_dataset = jobkorea_crawler.crawling()
-    save_dataset("/", "jobkorea", jobkorea_dataset)
-    '''
-    ## 사람인 크롤링
-    saramin_crawler = SaraminCrawler(WAIT_SEC, DEBUG)
-    saramin_dataset = saramin_crawler.crawling()
-    save_dataset(f"{SAVE_PATH}", "saramin", saramin_dataset)
-    '''
+    save_dataset("./outputs/", "jobkorea", jobkorea_dataset)
     
-    jobkorea_df = pd.read_csv('/jobkorea.csv')
+    ## 사람인 크롤링
+    saramin_crawler = SaraminCrawler()
+    saramin_dataset = saramin_crawler.crawling()
+    save_dataset("./outputs/", "saramin", saramin_dataset)
+    '''
+
+    jobkorea_df = pd.read_csv('./outputs/jobkorea.csv')
     saramin_df = pd.read_csv('./outputs/saramin.csv')
     
     preprocessing(jobkorea_df, saramin_df)
@@ -62,11 +62,11 @@ def main():
 
     for i in range(len(pp_df)):
         elem = pp_df.loc[i]
-        field = elem['주요분야']
-        cnt = int(elem['공고수'])
-        related = elem['연관분야']
+        main_field = elem['주요분야']
+        num_posts = int(elem['공고수'])
+        related_field = elem['연관분야']
 
-        q = FieldAnal(field=field, cnt=cnt, related=related)
+        q = JobPost(main_field=main_field, num_posts=num_posts, related_field=related_field)
         db.add(q)
 
     db.commit()

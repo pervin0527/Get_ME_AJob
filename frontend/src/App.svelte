@@ -2,12 +2,12 @@
   import Router from 'svelte-spa-router'
   import Home from "./routes/Home.svelte"
   import Detail from "./routes/Detail.svelte"
-  import Field from './routes/Field.svelte';
+  import JP_Detail from './routes/JP_Detail.svelte';
 
   const routes = {
     '/': Home,
     '/data_detail/:data_id': Detail,
-    '/field_detail/:data_id': Field,
+    '/job_post_detail/:data_id': JP_Detail,
   }
 </script>
 
