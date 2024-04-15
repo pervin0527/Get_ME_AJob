@@ -1,6 +1,6 @@
 ## Installation
 
-    pip install sqlalchemy asyncp psycopg2
+    pip install sqlalchemy asyncp psycopg2 apscheduler
 
     ## macOS
     brew install postgresql@14

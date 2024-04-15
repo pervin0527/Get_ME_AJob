@@ -21,24 +21,22 @@ def get_db():
 @app.on_event("startup")
 async def load_data():
     db = next(get_db())
-    # 데이터 저장 전의 총 데이터 개수를 출력
     initial_count = db.query(func.count(models.JobPost.id)).scalar()
     print(f"데이터 저장 전 DB의 총 데이터 개수: {initial_count}")
 
-    if initial_count == 0:  # 데이터가 하나도 없을 때만 실행
-        csv_file = '/Users/pervin0527/Get_ME_AJob/outputs/jobkorea.csv'
+    if initial_count == 0:
+        csv_file = '/Users/pervin0527/Get_ME_AJob/test.csv'
         df = pd.read_csv(csv_file)
-        df.columns = ['index', 'company_name', 'job_title', 'job_details', 'skills', 'link']
+        df.columns = ['index', 'main_field', 'num_posts', 'related_field']
+        df['related_field'] = df['related_field'].apply(lambda x: x.replace("'", '"'))
         df.drop(columns=['index'], inplace=True)
 
         try:
             for index, row in df.iterrows():
                 job_post = schemas.JobPostCreate(
-                    company_name=row['company_name'],
-                    job_title=row['job_title'],
-                    job_details=row['job_details'],
-                    skills=row['skills'],
-                    link=row['link']
+                    main_field=row['main_field'],
+                    num_posts=row['num_posts'],
+                    related_field=row['related_field'],
                 )
                 crud.create_job_post(db=db, job_post=job_post)
             db.commit()

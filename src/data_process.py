@@ -1,3 +1,4 @@
+import json
 import pandas as pd
 from collections import Counter
 
@@ -77,7 +78,7 @@ def count_technologies(row):
     field_counts = {field: Counter([word for word in words if word in field_lists[field]]) for field in row['주요분야'].split(", ")}
     for field, counter in field_counts.items():
         for tech, count in counter.items():
-            field_technologies.append({tech : count})
+            field_technologies.append({tech: count})
     
     return field_technologies
 
@@ -89,7 +90,8 @@ def preprocessing(*args):
 
     total_df['기술 세부 사항'] = total_df['기술 세부 사항'].apply(normalize_technologies)
     total_df['주요분야'] = split_words.apply(determine_field)
-    total_df['연관 분야'] = total_df.apply(count_technologies, axis=1)
+    # count_technologies 결과를 JSON 문자열로 변환하여 저장
+    total_df['연관 분야'] = total_df.apply(count_technologies, axis=1).apply(json.dumps)
 
     field_counts = pd.Series([field for sublist in total_df['주요분야'].dropna().str.split(", ") for field in sublist]).value_counts()
     main_field_list = field_counts.index.to_list()
@@ -104,7 +106,7 @@ def preprocessing(*args):
         filtered_data = total_df[total_df['주요분야'].str.contains(keyword, na=False)]
         
         related_field_counter = Counter()
-        filtered_data['연관 분야'].dropna().apply(lambda x: parse_and_count_associated_fields(x, related_field_counter))
+        filtered_data['연관 분야'].dropna().apply(lambda x: parse_and_count_associated_fields(json.loads(x), related_field_counter))
 
         top_related_fields = related_field_counter.most_common(10)
         if top_related_fields:
