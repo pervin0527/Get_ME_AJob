@@ -1,8 +1,10 @@
+import os
 import pandas as pd
 from sqlalchemy import func, text
 from sqlalchemy.orm import Session
 from fastapi import APIRouter, Depends, HTTPException
-from . import crud, models, schemas, database, util
+
+from . import crud, models, schemas, database, util, main
 
 router = APIRouter(prefix='/jobposts', tags=['jobposts'])
 
@@ -12,23 +14,6 @@ def get_db():
         yield db
     finally:
         db.close()
-
-
-@router.get("/graphs", response_model=str)
-def get_graphs(db: Session = Depends(get_db)):
-    job_posts = crud.get_job_posts(db)
-    if not job_posts:
-        raise HTTPException(status_code=404, detail="No job posts found")
-    
-    df = pd.DataFrame([{
-        'main_field': job.main_field,
-        'num_posts': job.num_posts,
-        'related_field': job.related_field
-    } for job in job_posts])
-    print(df.head())
-
-    graph_string = util.generate_base64_graph(df)
-    return f"data:image/png;base64,{graph_string}"
 
 
 @router.post("/", response_model=schemas.JobPostRead)

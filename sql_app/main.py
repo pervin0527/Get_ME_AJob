@@ -2,19 +2,23 @@
 import os
 import json
 import pandas as pd
+
+import matplotlib
+matplotlib.use('Agg')
+
+import seaborn as sns
 import matplotlib.pyplot as plt
 
-from sqlalchemy import func, text
-from sqlalchemy.orm import Session
-from fastapi.responses import HTMLResponse, FileResponse
+from fastapi import FastAPI
+from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
-from fastapi import Depends, FastAPI, HTTPException
 
+from sqlalchemy import func, text
 
 from apscheduler.triggers.cron import CronTrigger
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
-from . import crud, models, schemas
+from . import models, schemas
 from .database import SessionLocal, engine
 from .jobpost_router import router as jp_router
 
@@ -29,9 +33,9 @@ models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
 app.include_router(jp_router)
 
-current_dir = os.path.dirname(os.path.realpath(__file__))
-static_dir = os.path.join(current_dir, "static")
-app.mount("/static", StaticFiles(directory=static_dir), name="static")
+CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
+STATIC_DIR = os.path.join(CURRENT_DIR, "static")
+app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 scheduler = AsyncIOScheduler()
 
@@ -42,6 +46,17 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+def draw_main_graph(names, counts, filepath):
+    counts = [int(x) for x in counts]
+    plt.figure(figsize=(16, 8))
+    sns.barplot(x=names, y=counts, palette='viridis')
+    plt.title('주요분야별 채용공고 수')
+    plt.xlabel('채용공고 수')
+    plt.ylabel('주요분야')
+    plt.savefig(filepath)  # 파라미터로 받은 경로에 저장
+    plt.close()
 
 
 async def load_data():
@@ -57,6 +72,7 @@ async def load_data():
     # total_df['related_field'] = total_df['related_field'].apply(lambda x: json.dumps(x))
     total_df = total_df[total_df['main_field'] != 'Unknown']
     total_df['related_field'] = total_df['related_field'].apply(lambda x: json.dumps(x) if isinstance(x, list) else x)
+    draw_main_graph(total_df['main_field'].to_list(), total_df['num_posts'].to_list(), f"{STATIC_DIR}/graph_main.png")
 
     db = SessionLocal()
     existing_data = pd.read_sql(sql="SELECT main_field, num_posts, related_field FROM job_posts", con=db.bind)
@@ -104,18 +120,18 @@ async def startup_event():
     scheduler.print_jobs()
 
 
-# @app.on_event("shutdown")
-# async def shutdown_event():
-#     db = next(get_db())
-#     db.query(models.JobPost).delete()
-#     sequence_name = "job_posts_id_seq"
-#     db.execute(text(f"ALTER SEQUENCE {sequence_name} RESTART WITH 1"))
-#     db.commit()
-#     db.close()
-
-
 @app.get("/", response_class=HTMLResponse)
 async def read_main():
-    with open(os.path.join("/Users/pervin0527/Get_ME_AJob/sql_app/static", "index.html"), "r") as f:
+    with open(os.path.join(f"{STATIC_DIR}", "index.html"), "r") as f:
         html_content = f.read()
     return HTMLResponse(content=html_content)
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    db = next(get_db())
+    db.query(models.JobPost).delete()
+    sequence_name = "job_posts_id_seq"
+    db.execute(text(f"ALTER SEQUENCE {sequence_name} RESTART WITH 1"))
+    db.commit()
+    db.close()
