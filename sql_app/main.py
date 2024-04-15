@@ -19,7 +19,7 @@ from src.data_process import preprocessing
 
 
 WAIT_SEC = 3
-DEBUG = True
+DEBUG = False
 models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
 app.include_router(jp_router)
@@ -87,8 +87,9 @@ async def startup_event():
     
     scheduler.add_job(
         func=load_data,
-        trigger=CronTrigger(minute='*/3'),
-        # trigger=CronTrigger(hour='*/10'),
+        # trigger=CronTrigger(minute='*/3'), ## 3분
+        # trigger=CronTrigger(hour='*/10'), ## 1시간
+        trigger=CronTrigger(hour=0, minute=0), ## 매일 밤 12시
         timezone="Asia/Seoul"
     )
     scheduler.start()
