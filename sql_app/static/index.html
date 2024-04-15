@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Job Posting Analysis Dashboard</title>
+  </head>
+  <body>
+    <h1>Job Posting Analysis Dashboard</h1>
+    <img id="mainGraph" alt="Main Graph" />
+    <script>
+      async function loadGraph() {
+        const response = await fetch("/graphs");
+        if (response.ok) {
+          const imageSrc = await response.text();
+          document.getElementById("mainGraph").src = imageSrc;
+        } else {
+          console.error("Failed to load the graph:", await response.text());
+        }
+      }
+      window.onload = loadGraph;
+    </script>
+  </body>
+</html>

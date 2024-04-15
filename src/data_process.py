@@ -90,8 +90,7 @@ def preprocessing(*args):
 
     total_df['기술 세부 사항'] = total_df['기술 세부 사항'].apply(normalize_technologies)
     total_df['주요분야'] = split_words.apply(determine_field)
-    # count_technologies 결과를 JSON 문자열로 변환하여 저장
-    total_df['연관 분야'] = total_df.apply(count_technologies, axis=1).apply(json.dumps)
+    total_df['연관 분야'] = total_df.apply(count_technologies, axis=1).apply(json.dumps) ## count_technologies 결과를 JSON 문자열로 변환하여 저장
 
     field_counts = pd.Series([field for sublist in total_df['주요분야'].dropna().str.split(", ") for field in sublist]).value_counts()
     main_field_list = field_counts.index.to_list()
@@ -99,7 +98,7 @@ def preprocessing(*args):
     
     main_field_list.pop(4)
     main_field_counts.pop(4)
-    draw_main_graph(field_counts)
+    # draw_main_graph(field_counts)
 
     related_field_list = [[] for _ in main_field_list]
     for i, keyword in enumerate(main_field_list):
@@ -112,7 +111,7 @@ def preprocessing(*args):
         if top_related_fields:
             related_fields, related_counts = zip(*top_related_fields)
             related_field_list[i] = [{field: count} for field, count in zip(related_fields, related_counts)]
-            draw_sub_graph(related_fields, related_counts, keyword)
+            # draw_sub_graph(related_fields, related_counts, keyword)
         else:
             related_field_list[i] = []
 

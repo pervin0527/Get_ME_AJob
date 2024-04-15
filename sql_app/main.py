@@ -1,10 +1,15 @@
 ## uvicorn sql_app.main:app --reload
+import os
 import json
 import pandas as pd
+import matplotlib.pyplot as plt
 
 from sqlalchemy import func, text
 from sqlalchemy.orm import Session
+from fastapi.responses import HTMLResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 from fastapi import Depends, FastAPI, HTTPException
+
 
 from apscheduler.triggers.cron import CronTrigger
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -19,10 +24,14 @@ from src.data_process import preprocessing
 
 
 WAIT_SEC = 3
-DEBUG = False
+DEBUG = True
 models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
 app.include_router(jp_router)
+
+current_dir = os.path.dirname(os.path.realpath(__file__))
+static_dir = os.path.join(current_dir, "static")
+app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 scheduler = AsyncIOScheduler()
 
@@ -46,13 +55,12 @@ async def load_data():
     total_df.columns = ['main_field', 'num_posts', 'related_field']
 
     # total_df['related_field'] = total_df['related_field'].apply(lambda x: json.dumps(x))
+    total_df = total_df[total_df['main_field'] != 'Unknown']
     total_df['related_field'] = total_df['related_field'].apply(lambda x: json.dumps(x) if isinstance(x, list) else x)
 
     db = SessionLocal()
-
     existing_data = pd.read_sql(sql="SELECT main_field, num_posts, related_field FROM job_posts", con=db.bind)
     existing_data['related_field'] = existing_data['related_field'].apply(lambda x: json.dumps(x) if isinstance(x, list) else x)
-
 
     if existing_data.empty:
         for index, row in total_df.iterrows():
@@ -104,3 +112,10 @@ async def startup_event():
 #     db.execute(text(f"ALTER SEQUENCE {sequence_name} RESTART WITH 1"))
 #     db.commit()
 #     db.close()
+
+
+@app.get("/", response_class=HTMLResponse)
+async def read_main():
+    with open(os.path.join("/Users/pervin0527/Get_ME_AJob/sql_app/static", "index.html"), "r") as f:
+        html_content = f.read()
+    return HTMLResponse(content=html_content)
