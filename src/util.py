@@ -14,6 +14,7 @@ def draw_main_graph(field_counts):
     plt.ylabel('주요분야')
     # plt.show()
     plt.savefig('outputs/Main.png')
+    plt.close()
 
 
 def draw_sub_graph(fields, counts, keyword):
@@ -24,3 +25,4 @@ def draw_sub_graph(fields, counts, keyword):
     plt.xticks(rotation=45)
     # plt.show()
     plt.savefig(f'outputs/Relation_{keyword}.png')
+    plt.close()

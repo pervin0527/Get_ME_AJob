@@ -1,15 +1,31 @@
 ## uvicorn sql_app.main:app --reload
+import json
 import pandas as pd
 
 from sqlalchemy import func, text
 from sqlalchemy.orm import Session
 from fastapi import Depends, FastAPI, HTTPException
 
+from apscheduler.triggers.cron import CronTrigger
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+
 from . import crud, models, schemas
 from .database import SessionLocal, engine
+from .jobpost_router import router as jp_router
 
+from src.saramin import SaraminCrawler
+from src.jobkorea import JobKoreaCrawler
+from src.data_process import preprocessing
+
+
+WAIT_SEC = 3
+DEBUG = True
 models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
+app.include_router(jp_router)
+
+scheduler = AsyncIOScheduler()
+
 
 def get_db():
     db = SessionLocal()
@@ -18,81 +34,72 @@ def get_db():
     finally:
         db.close()
 
-@app.on_event("startup")
+
 async def load_data():
-    db = next(get_db())
-    initial_count = db.query(func.count(models.JobPost.id)).scalar()
-    print(f"데이터 저장 전 DB의 총 데이터 개수: {initial_count}")
+    jobkorea_crawler = JobKoreaCrawler(WAIT_SEC, DEBUG)
+    saramin_crawler = SaraminCrawler(WAIT_SEC, DEBUG)
 
-    if initial_count == 0:
-        csv_file = '/Users/pervin0527/Get_ME_AJob/test.csv'
-        df = pd.read_csv(csv_file)
-        df.columns = ['index', 'main_field', 'num_posts', 'related_field']
-        df['related_field'] = df['related_field'].apply(lambda x: x.replace("'", '"'))
-        df.drop(columns=['index'], inplace=True)
+    jobkorea_dataset = jobkorea_crawler.crawling()
+    saramin_dataset = saramin_crawler.crawling()
 
-        try:
-            for index, row in df.iterrows():
-                job_post = schemas.JobPostCreate(
-                    main_field=row['main_field'],
-                    num_posts=row['num_posts'],
-                    related_field=row['related_field'],
-                )
-                crud.create_job_post(db=db, job_post=job_post)
-            db.commit()
-        except Exception as e:
-            db.rollback()
-            print(f"데이터 로드 중 오류 발생: {str(e)}")
-        # 데이터 저장 후의 총 데이터 개수를 출력
-        final_count = db.query(func.count(models.JobPost.id)).scalar()
-        print(f"데이터 저장 후 DB의 총 데이터 개수: {final_count}")
+    total_df = preprocessing(jobkorea_dataset, saramin_dataset)
+    total_df.columns = ['main_field', 'num_posts', 'related_field']
+
+    # total_df['related_field'] = total_df['related_field'].apply(lambda x: json.dumps(x))
+    total_df['related_field'] = total_df['related_field'].apply(lambda x: json.dumps(x) if isinstance(x, list) else x)
+
+    db = SessionLocal()
+
+    existing_data = pd.read_sql(sql="SELECT main_field, num_posts, related_field FROM job_posts", con=db.bind)
+    existing_data['related_field'] = existing_data['related_field'].apply(lambda x: json.dumps(x) if isinstance(x, list) else x)
+
+
+    if existing_data.empty:
+        for index, row in total_df.iterrows():
+            job_post = schemas.JobPostCreate(
+                main_field=row['main_field'],
+                num_posts=row['num_posts'],
+                related_field=row['related_field']
+            )
+            db.add(models.JobPost(**job_post.dict()))
     else:
-        print("DB에 이미 데이터가 존재합니다. 새로운 데이터 로드를 생략합니다.")
+        merged_data = pd.merge(total_df, existing_data, on=["main_field", "related_field"], suffixes=('_new', '_existing'), how='outer', indicator=True)
+        update_data = merged_data[(merged_data['_merge'] == 'both') & (merged_data['num_posts_new'] != merged_data['num_posts_existing'])]
+        for index, row in update_data.iterrows():
+            db.query(models.JobPost).filter(models.JobPost.main_field == row['main_field'], models.JobPost.related_field == row['related_field']).update({'num_posts': row['num_posts_new']})
 
+        new_data = merged_data[merged_data['_merge'] == 'left_only']
+        for index, row in new_data.iterrows():
+            job_post = schemas.JobPostCreate(
+                main_field=row['main_field'],
+                num_posts=row['num_posts_new'],
+                related_field=row['related_field']
+            )
+            db.add(models.JobPost(**job_post.dict()))
+
+    db.commit()
     db.close()
 
 
-@app.post("/jobposts/", response_model=schemas.JobPostRead)
-def create_job_post(job_post: schemas.JobPostCreate, db: Session = Depends(get_db)):
-    return crud.create_job_post(db=db, job_post=job_post)
+@app.on_event("startup")
+async def startup_event():
+    await load_data()
+    
+    scheduler.add_job(
+        func=load_data,
+        trigger=CronTrigger(minute='*/3'),
+        # trigger=CronTrigger(hour='*/10'),
+        timezone="Asia/Seoul"
+    )
+    scheduler.start()
+    scheduler.print_jobs()
 
 
-@app.get("/jobposts/{job_post_id}", response_model=schemas.JobPostRead)
-def read_job_post(job_post_id: int, db: Session = Depends(get_db)):
-    db_job_post = crud.get_job_post(db, job_post_id=job_post_id)
-    if db_job_post is None:
-        raise HTTPException(status_code=404, detail="JobPost not found")
-    return db_job_post
-
-
-@app.get("/jobposts/", response_model=list[schemas.JobPostRead])
-def read_job_posts(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    job_posts = crud.get_job_posts(db, skip=skip, limit=limit)
-    return job_posts
-
-
-@app.put("/jobposts/{job_post_id}", response_model=schemas.JobPostRead)
-def update_job_post(job_post_id: int, job_post: schemas.JobPostUpdate, db: Session = Depends(get_db)):
-    return crud.update_job_post(db=db, job_post_id=job_post_id, updates=job_post)
-
-
-@app.delete("/jobposts/{job_post_id}", response_model=dict)
-def delete_job_post(job_post_id: int, db: Session = Depends(get_db)):
-    if crud.delete_job_post(db=db, job_post_id=job_post_id):
-        return {"detail": "JobPost deleted"}
-    raise HTTPException(status_code=404, detail="JobPost not found")
-
-
-@app.delete("/clear-data")
-def clear_data(db: Session = Depends(get_db)):
-    try:
-        db.query(models.JobPost).delete()
-
-        sequence_name = "job_posts_id_seq"
-        db.execute(text(f"ALTER SEQUENCE {sequence_name} RESTART WITH 1"))
-
-        db.commit()
-        return {"message": "모든 데이터가 성공적으로 제거되었습니다."}
-    except Exception as e:
-        db.rollback()
-        return {"error": str(e)}
+# @app.on_event("shutdown")
+# async def shutdown_event():
+#     db = next(get_db())
+#     db.query(models.JobPost).delete()
+#     sequence_name = "job_posts_id_seq"
+#     db.execute(text(f"ALTER SEQUENCE {sequence_name} RESTART WITH 1"))
+#     db.commit()
+#     db.close()

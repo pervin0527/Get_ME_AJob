@@ -1,4 +1,5 @@
 import time
+import pandas as pd
 
 from tqdm import tqdm
 from selenium import webdriver
@@ -77,7 +78,7 @@ class SaraminCrawler:
         idx = 1
         total_data = []
         while True:
-            if self.debug and idx == 5:
+            if self.debug and idx == 2:
                     break
 
             if idx > 1:
@@ -97,4 +98,5 @@ class SaraminCrawler:
             idx += 1
 
         browser.close()
-        return total_data
+        df = pd.DataFrame(total_data)
+        return df
