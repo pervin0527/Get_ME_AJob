@@ -78,20 +78,20 @@ def draw_sub_graph(related_fields, keyword, filepath):
 
 
 async def load_data():
-    # jobkorea_crawler = JobKoreaCrawler(WAIT_SEC, DEBUG)
-    # saramin_crawler = SaraminCrawler(WAIT_SEC, DEBUG)
+    jobkorea_crawler = JobKoreaCrawler(WAIT_SEC, DEBUG)
+    saramin_crawler = SaraminCrawler(WAIT_SEC, DEBUG)
 
-    # jobkorea_dataset = jobkorea_crawler.crawling()
-    # saramin_dataset = saramin_crawler.crawling()
+    jobkorea_dataset = jobkorea_crawler.crawling()
+    saramin_dataset = saramin_crawler.crawling()
 
-    # total_df = preprocessing(jobkorea_dataset, saramin_dataset)
-    # total_df.columns = ['main_field', 'num_posts', 'related_field']
+    total_df = preprocessing(jobkorea_dataset, saramin_dataset)
+    total_df.columns = ['main_field', 'num_posts', 'related_field']
 
-    total_df = pd.read_csv('/Users/pervin0527/Get_ME_AJob/test.csv')
-    total_df.columns = ['index', 'main_field', 'num_posts', 'related_field']
-    total_df.drop(columns=['index'], inplace=True)
+    #total_df = pd.read_csv('/Users/pervin0527/Get_ME_AJob/test.csv')
+    #total_df.columns = ['index', 'main_field', 'num_posts', 'related_field']
+    #total_df.drop(columns=['index'], inplace=True)
 
-    # total_df['related_field'] = total_df['related_field'].apply(lambda x: json.dumps(x))
+    #total_df['related_field'] = total_df['related_field'].apply(lambda x: json.dumps(x))
     total_df = total_df[total_df['main_field'] != 'Unknown']
     total_df['related_field'] = total_df['related_field'].apply(lambda x: json.dumps(x) if isinstance(x, list) else x)
     draw_main_graph(total_df['main_field'].to_list(), total_df['num_posts'].to_list(), f"{STATIC_DIR}/graph_main.png")

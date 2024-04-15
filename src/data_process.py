@@ -96,8 +96,8 @@ def preprocessing(*args):
     main_field_list = field_counts.index.to_list()
     main_field_counts = list(field_counts.values)
     
-    main_field_list.pop(4)
-    main_field_counts.pop(4)
+    #main_field_list.pop(4)
+    #main_field_counts.pop(4)
     # draw_main_graph(field_counts)
 
     related_field_list = [[] for _ in main_field_list]
@@ -116,6 +116,6 @@ def preprocessing(*args):
             related_field_list[i] = []
 
     result = pd.DataFrame({'주요분야': main_field_list, '공고수': main_field_counts, '연관분야': related_field_list})
-    # result.to_csv('test.csv')
+    result.to_csv('test.csv')
 
     return result

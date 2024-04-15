@@ -17,6 +17,10 @@ class JobPostBase(BaseModel):
             except json.JSONDecodeError:
                 raise ValueError("related_field must be a valid JSON list")
         return v
+    '''
+    class Config:
+        orm_mode = True
+    '''
 
 class JobPostCreate(JobPostBase):
     pass
@@ -26,11 +30,18 @@ class JobPostUpdate(BaseModel):
     num_posts: Optional[int] = None
     related_field: Optional[List[Dict[str, Any]]] = None
 
+    '''
+    class Config:
+        orm_mode = True
+    '''
+
 class JobPostRead(JobPostBase):
     id: int
 
+'''
     class Config:
         orm_mode = True
+'''
 
 class JobPostList(BaseModel):
     items: List[JobPostRead]

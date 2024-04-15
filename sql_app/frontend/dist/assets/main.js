@@ -217,11 +217,8 @@ class App{
             }
             title = '모바일 개발 연관 기술';
         }
-
-        related_skills = related_skills.replace(/'/g, '"');
-        related_skills = JSON.parse(related_skills);
-
         related_skills.forEach(element => {
+            console.log(element);
             const skill_item = Object.entries(element);
             const skill = skill_item[0][0];
             const cnt = Number(skill_item[0][1]);
