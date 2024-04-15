@@ -100,6 +100,7 @@ async def load_data():
     existing_data = pd.read_sql(sql="SELECT main_field, num_posts, related_field FROM job_posts", con=db.bind)
     existing_data['related_field'] = existing_data['related_field'].apply(lambda x: json.dumps(x) if isinstance(x, list) else x)
 
+
     if existing_data.empty:
         for index, row in total_df.iterrows():
             job_post = schemas.JobPostCreate(
