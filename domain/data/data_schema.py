@@ -45,7 +45,8 @@ class Detail(BaseModel):
 class FA(BaseModel):
     id: int
     field: str
-    count: int
+    cnt: int
+    related: str
 
     class Config:
         orm_mode = True

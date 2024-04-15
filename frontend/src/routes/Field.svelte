@@ -1,3 +1,5 @@
+<!-- 각 분야에 대한 상세 정보를 보여주는 페이지-->
+
 <script>
     import fastapi from "../lib/api"
 
@@ -11,7 +13,7 @@
         //})
         
 
-        fetch(`http://13.125.59.124:8000/api/data/field_detail/${data_id}`).then((response) => {
+        fetch(`http://127.0.0.1:8000/api/data/field_detail/${data_id}`).then((response) => {
             response.json().then((json) => {
                 detail = json
             })
@@ -24,6 +26,7 @@
 
 <h1>{detail.field}</h1>
 <div>
-    {detail.count}<br>
+    {detail.cnt}<br>
+    {detail.related}
     <!-- {detail.skill}<br> db에 skill값을 저장하게 되면 해당 값을 불러온다. -->
 </div>

@@ -1,3 +1,5 @@
+<!-- 첫 화면 페이지 -->
+
 <script>
     import fastapi from '../lib/api';
     import { onMount } from 'svelte';
@@ -5,10 +7,10 @@
     
   
     let dataList = [];
-    let endpoint = "jobkorea_list"; // Default endpoint
+    let endpoint = "field_list"; // Default endpoint
   
     function fetchData(endpoint) {
-      return fetch(`http://13.125.59.124:8000/api/data/${endpoint}`) // local에서 할 때 127.0.0.1으로 변경해야 됨!!
+      return fetch(`http://127.0.0.1:8000/api/data/${endpoint}`) // local에서 할 때 127.0.0.1으로 변경해야 됨!!
         .then(response => {
           if (!response.ok) {
             throw new Error("Network response was not ok");
@@ -43,7 +45,7 @@
     {#if endpoint === 'field_list'}
       {#each dataList as data}
         <li><a use:link href="/field_detail/{endpoint}_{data.id}">{data.field}</a></li>
-        {data.count}<br>
+        {data.cnt}<br>
       {/each}
 
     {:else}

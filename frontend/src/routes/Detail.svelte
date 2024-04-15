@@ -1,3 +1,5 @@
+<!-- 각 공고의 상세 내용을 보여주는 페이지 -->
+
 <script>
     import fastapi from "../lib/api"
 
@@ -11,7 +13,7 @@
         //})
         
 
-        fetch(`http://13.125.59.124:8000/api/data/data_detail/${data_id}`).then((response) => {
+        fetch(`http://127.0.0.1:8000/api/data/data_detail/${data_id}`).then((response) => {
             response.json().then((json) => {
                 detail = json
             })
