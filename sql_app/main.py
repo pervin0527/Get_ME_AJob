@@ -38,7 +38,9 @@ app.include_router(jp_router)
 
 CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
 STATIC_DIR = os.path.join(CURRENT_DIR, "static")
+ASSET_DIR = os.path.join(CURRENT_DIR, 'frontend/dist/assets')
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+app.mount("/assets", StaticFiles(directory=ASSET_DIR), name='assets')
 
 scheduler = AsyncIOScheduler()
 
@@ -76,18 +78,18 @@ def draw_sub_graph(related_fields, keyword, filepath):
 
 
 async def load_data():
-    jobkorea_crawler = JobKoreaCrawler(WAIT_SEC, DEBUG)
-    saramin_crawler = SaraminCrawler(WAIT_SEC, DEBUG)
+    # jobkorea_crawler = JobKoreaCrawler(WAIT_SEC, DEBUG)
+    # saramin_crawler = SaraminCrawler(WAIT_SEC, DEBUG)
 
-    jobkorea_dataset = jobkorea_crawler.crawling()
-    saramin_dataset = saramin_crawler.crawling()
+    # jobkorea_dataset = jobkorea_crawler.crawling()
+    # saramin_dataset = saramin_crawler.crawling()
 
-    total_df = preprocessing(jobkorea_dataset, saramin_dataset)
-    total_df.columns = ['main_field', 'num_posts', 'related_field']
+    # total_df = preprocessing(jobkorea_dataset, saramin_dataset)
+    # total_df.columns = ['main_field', 'num_posts', 'related_field']
 
-    # total_df = pd.read_csv('/Users/pervin0527/Get_ME_AJob/test.csv')
-    # total_df.columns = ['index', 'main_field', 'num_posts', 'related_field']
-    # total_df.drop(columns=['index'], inplace=True)
+    total_df = pd.read_csv('/Users/pervin0527/Get_ME_AJob/test.csv')
+    total_df.columns = ['index', 'main_field', 'num_posts', 'related_field']
+    total_df.drop(columns=['index'], inplace=True)
 
     # total_df['related_field'] = total_df['related_field'].apply(lambda x: json.dumps(x))
     total_df = total_df[total_df['main_field'] != 'Unknown']
@@ -139,11 +141,10 @@ async def startup_event():
     scheduler.start()
     scheduler.print_jobs()
 
-app.mount("/assets", StaticFiles(directory="../../frontend/dist/assets"))
-
 @app.get("/")
 def index():
-    return FileResponse("../../frontend/dist/index.html")
+    index_dir = '/'.join(ASSET_DIR.split('/')[:-1])
+    return FileResponse(f"{index_dir}/index.html")
 
 '''
 @app.get("/", response_class=HTMLResponse)
