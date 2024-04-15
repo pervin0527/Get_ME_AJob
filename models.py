@@ -32,3 +32,4 @@ class FieldAnal(Base):
     id = Column(Integer, primary_key=True)
     field = Column(String, nullable=False)
     count = Column(Integer, nullable=False)
+    # skill_list = Column(~~)

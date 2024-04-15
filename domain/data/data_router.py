@@ -11,7 +11,6 @@ router = APIRouter(
     prefix="/api/data",
 )
 
-
 @router.get("/jobkorea_list", response_model=list[data_schema.Jobkorea])
 def jobkorea_list(db: Session = Depends(get_db)):
     _jobkorea_list = data_crud.get_jobkorea_list(db)
