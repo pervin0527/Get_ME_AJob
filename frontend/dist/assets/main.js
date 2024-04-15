@@ -1,7 +1,7 @@
 
 // 데이터 받아오기
 function fetchData(db_name) {    
-    return fetch(`http://127.0.0.1:8000/api/data/${db_name}`) // local에서 할 때 127.0.0.1으로 변경해야 됨!!
+    return fetch(`http://127.0.0.1:8000/${db_name}`) // local에서 할 때 127.0.0.1으로 변경해야 됨!!
         .then(response => {
 
         if (!response.ok) {
@@ -56,8 +56,8 @@ class App{
         if(active_filed == 'init'){
             // init filed labels
             this.db_data.forEach(element => {
-                const field = element['field'];
-                const cnt = element['cnt'];
+                const field = element['main_field'];
+                const cnt = element['num_posts'];
 
                 x_labels.push(field);
                 y_labels.push(cnt);
@@ -78,8 +78,8 @@ class App{
             for(let i=0; i < this.db_data.length; i++){
                 const element = this.db_data[i];
 
-                if(element['field']=='컴퓨터 비전'){
-                    related_skills = element['related'];
+                if(element['main_field']=='컴퓨터 비전'){
+                    related_skills = element['related_field'];
                     break;
                 }
             }
@@ -91,8 +91,8 @@ class App{
             for(let i=0; i < this.db_data.length; i++){
                 const element = this.db_data[i];
 
-                if(element['field']=='자연어 처리'){
-                    related_skills = element['related'];
+                if(element['main_field']=='자연어 처리'){
+                    related_skills = element['related_field'];
                     break;
                 }
             }
@@ -105,8 +105,8 @@ class App{
             for(let i=0; i < this.db_data.length; i++){
                 const element = this.db_data[i];
 
-                if(element['field']=='데이터 엔지니어링'){
-                    related_skills = element['related'];
+                if(element['main_field']=='데이터 엔지니어링'){
+                    related_skills = element['related_field'];
                     break;
                 }
             }
@@ -119,8 +119,8 @@ class App{
             for(let i=0; i < this.db_data.length; i++){
                 const element = this.db_data[i];
 
-                if(element['field']=='백엔드 개발'){
-                    related_skills = element['related'];
+                if(element['main_field']=='백엔드 개발'){
+                    related_skills = element['related_field'];
                     break;
                 }
             }
@@ -132,8 +132,8 @@ class App{
             for(let i=0; i < this.db_data.length; i++){
                 const element = this.db_data[i];
 
-                if(element['field']=='프론트엔드 개발'){
-                    related_skills = element['related'];
+                if(element['main_field']=='프론트엔드 개발'){
+                    related_skills = element['related_field'];
                     break;
                 }
             }
@@ -145,8 +145,8 @@ class App{
             for(let i=0; i < this.db_data.length; i++){
                 const element = this.db_data[i];
 
-                if(element['field']=='보안'){
-                    related_skills = element['related'];
+                if(element['main_field']=='보안'){
+                    related_skills = element['related_field'];
                     break;
                 }
             }
@@ -158,8 +158,8 @@ class App{
             for(let i=0; i < this.db_data.length; i++){
                 const element = this.db_data[i];
 
-                if(element['field']=='금융'){
-                    related_skills = element['related'];
+                if(element['main_field']=='금융'){
+                    related_skills = element['related_field'];
                     break;
                 }
             }
@@ -171,8 +171,8 @@ class App{
             for(let i=0; i < this.db_data.length; i++){
                 const element = this.db_data[i];
 
-                if(element['field']=='메타버스'){
-                    related_skills = element['related'];
+                if(element['main_field']=='메타버스'){
+                    related_skills = element['related_field'];
                     break;
                 }
             }
@@ -184,8 +184,8 @@ class App{
             for(let i=0; i < this.db_data.length; i++){
                 const element = this.db_data[i];
 
-                if(element['field']=='블록체인'){
-                    related_skills = element['related'];
+                if(element['main_field']=='블록체인'){
+                    related_skills = element['related_field'];
                     break;
                 }
             }
@@ -197,8 +197,8 @@ class App{
             for(let i=0; i < this.db_data.length; i++){
                 const element = this.db_data[i];
 
-                if(element['field']=='시스템 개발'){
-                    related_skills = element['related'];
+                if(element['main_field']=='시스템 개발'){
+                    related_skills = element['related_field'];
                     break;
                 }
             }
@@ -210,8 +210,8 @@ class App{
             for(let i=0; i < this.db_data.length; i++){
                 const element = this.db_data[i];
 
-                if(element['field']=='모바일 개발'){
-                    related_skills = element['related'];
+                if(element['main_field']=='모바일 개발'){
+                    related_skills = element['related_field'];
                     break;
                 }
             }
@@ -331,7 +331,7 @@ class App{
 }
 
 window.onload = ()=>{
-    fetchData('field_list').then(data => {
+    fetchData('jobposts').then(data => {
         new App(data)
     });
 }
