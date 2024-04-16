@@ -56,6 +56,8 @@ body{
     display: flex;
     justify-content: space-around;
     align-items: center;
+
+    cursor: pointer;
 }
 
 .choose_chart_type_btn{
@@ -69,4 +71,6 @@ body{
     border-radius: 1rem;
 
     background-color: black;
+
+    transition: all ease-in-out 0.2s;
 }

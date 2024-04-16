@@ -37,8 +37,24 @@ class App{
         });
 
         // 바 하고 원 차트 변경
+        this.chart_type_btn = document.querySelector('.choose_chart_type_btn');
+        this.choose_chart_type = document.querySelector('.choose_chart_type');
 
-       
+        this.cur_chart_type = 0; // bar = 0 ; pie = 1
+        this.choose_chart_type.addEventListener('click', ()=>{
+            console.log("왜 클릭이 안되는 건데!!!")
+            if (this.cur_chart_type == 0){
+                this.cur_chart_type = 1;
+                this.chart_type_btn.style.left = '2.5rem';
+                
+                this.is_bar = false;
+            }else{
+                this.cur_chart_type = 0;
+                this.chart_type_btn.style.left = '1px';
+                this.is_bar = true;
+            }
+            this.drawPlot(this.cur_field, this.is_bar);
+        });
     }
 
     drawPlot(active_filed, is_bar){
