@@ -1,20 +1,36 @@
 # 취업시켜조(Get Me A Job)
 
-## 구인구직 사이트
+## 1.목표
 
-- 잡코리아
-- 사람인
-- 원티드
-- 링크드인
-- 로켓펀치
-- 잡플래닛
-- 인쿠르트
+1. 잡코리아, 사람인 웹사이트에서 `머신러닝 엔지니어`, `딥러닝 엔지니어`를 검색하고 채용공고들을 크롤링한다.
+2. 크롤링 데이터를 전처리하여 각 공고에 주요 분야, 연관 분야를 부여한다.
+3. 전처리된 데이터를 데이터베이스에 저장.(FastAPI + PostgreSQL)
+4. 주요 분야의 수를 그래프로 보여주고, 사용자가 선택한 주요 분야와 연관된 단어들을 그래프로 보여준다.
 
-## 데이터
+## 2.설치
 
-main : 직군, 회사(회사명, 근무지), 요구하는 기술(딥러닝 메인 기술 + @)
-sub : 복리후생(사내복지), 연봉 정보(평균 연봉)
+### 2-1.파이썬 라이브러리
 
-# 분야 | 공고수 | 관련 분야(기술 이름 : 등장횟수)
+    pip install pandas fastapi selenium webdriver-manager
+    pip install "uvicorn[standard]"
 
-0 | 111000| (c++ : 10, JAVA : 7) ---> [[기술이름],[등장횟수], ....]
+### 2-2.PostgreSQL
+
+[https://www.postgresql.org/](https://www.postgresql.org/)에서 DB 설치.
+
+    ## 터미널에서 DB 설정 및 테이블 생성
+    psql postgres
+    CREATE ROLE postgres WITH LOGIN PASSWORD '비밀번호';
+
+    brew services start postgresql
+    brew services restart postgresql
+
+    CREATE DATABASE '테이블 이름';
+    \connect '테이블 이름';
+
+    ## sql_app/database.py에서 DB 연결 수정.
+    SQLALCHEMY_DATABASE_URL = "postgresql://USERNAME:PASSWORD@localhost/TABLENAME"
+
+## 3.실행
+
+    uvicorn sql_app.main:app --reload

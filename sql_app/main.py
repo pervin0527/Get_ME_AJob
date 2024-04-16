@@ -31,7 +31,7 @@ from starlette.staticfiles import StaticFiles
 
 
 WAIT_SEC = 3
-DEBUG = True
+DEBUG = False
 models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
 app.include_router(jp_router)
