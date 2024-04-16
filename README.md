@@ -13,7 +13,14 @@
 
 ### 2-1.파이썬 라이브러리
 
-    pip install pandas fastapi selenium webdriver-manager
+    ## data
+    pip install pandas tqdm seaborn matplotlib
+
+    ## crawling
+    pip install selenium webdriver-manager
+
+    ## FastAPI + DB
+    pip install fastapi psycopg2 sqlalchemy
     pip install "uvicorn[standard]"
 
 ### 2-2.PostgreSQL
@@ -25,7 +32,12 @@
 
     ## 비밀번호 설정 및 재시작.
     CREATE ROLE postgres WITH LOGIN PASSWORD '비밀번호';
+
     brew services restart postgresql ## MacOS
+
+    net stop postgresql-xx ## Windows
+    net start postgresql-xx
+
 
 
     CREATE DATABASE '테이블 이름';
