@@ -1,11 +1,9 @@
-import os
 import json
-import pandas as pd
 from sqlalchemy import func, text
 from sqlalchemy.orm import Session
 from fastapi import APIRouter, Depends, HTTPException
 
-from . import crud, models, schemas, database, util, main
+from . import crud, models, schemas, database
 
 router = APIRouter(prefix='/jobposts', tags=['jobposts'])
 
@@ -61,25 +59,3 @@ def delete_job_post(job_post_id: int, db: Session = Depends(get_db)):
     if crud.delete_job_post(db=db, job_post_id=job_post_id):
         return {"detail": "JobPost deleted"}
     raise HTTPException(status_code=404, detail="JobPost not found")
-
-
-@router.get("/fields")
-async def get_main_fields():
-    db = next(get_db())
-    try:
-        fields = db.query(models.JobPost.main_field).distinct().all()
-        return [field[0] for field in fields]
-    finally:
-        db.close()
-
-
-@router.get("/fields/{main_field}")
-async def get_related_fields(main_field: str):
-    db = next(get_db())
-    try:
-        related_fields = db.query(models.JobPost.related_field).filter(models.JobPost.main_field == main_field).first()
-        if related_fields:
-            return json.loads(related_fields[0])
-        raise HTTPException(status_code=404, detail="Field not found")
-    finally:
-        db.close()
