@@ -1,5 +1,7 @@
 # 취업시켜조(Get Me A Job)
 
+![main img](./imgs/main.png)
+
 ## 1.목표
 
 1. 잡코리아, 사람인 웹사이트에서 `머신러닝 엔지니어`, `딥러닝 엔지니어`를 검색하고 채용공고들을 크롤링한다.
@@ -18,12 +20,13 @@
 
 [https://www.postgresql.org/](https://www.postgresql.org/)에서 DB 설치.
 
-    ## 터미널에서 DB 설정 및 테이블 생성
+    ## 터미널에서 DB로 접속.
     psql postgres
-    CREATE ROLE postgres WITH LOGIN PASSWORD '비밀번호';
 
-    brew services start postgresql
-    brew services restart postgresql
+    ## 비밀번호 설정 및 재시작.
+    CREATE ROLE postgres WITH LOGIN PASSWORD '비밀번호';
+    brew services restart postgresql ## MacOS
+
 
     CREATE DATABASE '테이블 이름';
     \connect '테이블 이름';
